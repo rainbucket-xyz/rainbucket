@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Client</title>
+</head>
+<body>
+
+  <h1>Collecting Raindrops</h1>
+  <div id="raindrops">
+  </div>
+
+  <!-- If user doesn't have a bucket, display button -->
+  <button onclick=buttonHandler>
+    click here to get a bucket
+  </button>
+
+
+  <script>
+
+    //when user clicks button:
+    function buttonHandler(e) {
+      // send POST request to backend to generate new bucket
+        // post to api
+      // redirect user to their new (user) url https://rainbucket.xyz/u/jhdiudhsD
+    fetch("https://rainbucket.xyz/b/new", {method: "post"})
+    }
+  
+    const ws = new WebSocket("ws://localhost:8888");
+
+    ws.addEventListener("open", () => {
+      console.log("We are connected!")
+    })
+
+    ws.addEventListener("message", (e) => {
+      const raindrop = document.createElement('div');
+      raindrop.className = 'raindrop';
+      raindrop.textContent = e.data;
+      document.getElementById('raindrops').append(raindrop);
+      console.log('message received');
+    })
+  </script>
+</body>
+</html>
