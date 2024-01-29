@@ -2,6 +2,10 @@ const express = require('express');
 const app = express();
 const port = 3000;
 
-app.use(express.static('public'));
+app.get('/', (req, res) => {
+  res.send('Welcome to Rainbucket!');
+});
 
-app.listen(port, () => console.log('Rainbucket!!!'));
+app.listen(port, () => {
+  console.log(`Rainbucket server successfully running on ${port}`);
+});
