@@ -62,8 +62,8 @@ main {
   padding: 5px;
 }
 
-.raindrop-detail-heading {
-  
+.raindrops-date-header {
+  background-color: lightgrey;
 }
 
 footer {
