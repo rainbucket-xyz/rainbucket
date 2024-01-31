@@ -109,13 +109,14 @@ function RaindropsView() {
 function NewBucketView() {
   return (
     <>
+    <button>Create New Bucket</button>
 
     </>
   )
 }
 function App() {
   // use effect to determine if user has a bucket(?)
-  const hasBucket = true;
+  const hasBucket = false;
   if (hasBucket) {
     return <RaindropsView/>
   } else {
