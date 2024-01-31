@@ -28,7 +28,7 @@ const createRaindrop = async (bucketPath, method, path) => {
     let bucketId = await Bucket.getBucketId(bucketPath);
     let mongoId = await Payload.createRaindropPayload(request);
     let result = await db.query(
-      'INSERT INTO raindrops (bucket_id, mongo_id, http_method, path) VALUES ($1, $2, $3, $4) RETURNING *',
+      'INSERT INTO raindrops (bucket_id, mongo_id, http_method, path, timestamp) VALUES ($1, $2, $3, $4, NOW()) RETURNING *',
       [bucketId, mongoId, method, path]
     );
 

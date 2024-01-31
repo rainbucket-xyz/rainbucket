@@ -32,7 +32,7 @@ const getBucketId = async (bucketPath) => {
 const createBucket = async (bucketPath) => {
   try {
     let result = await db.query(
-      'INSERT INTO buckets (bucket_path) VALUES ($1) RETURNING *',
+      'INSERT INTO buckets (bucket_path, creation_date) VALUES ($1, NOW()) RETURNING *',
       [bucketPath]
     );
 
