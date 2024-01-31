@@ -16,7 +16,6 @@ const db = new Pool({
 //   ...
 // }
 
-// ========================== getBucketId ==========================
 const getBucketId = async (bucketPath) => {
   try {
     let result = await db.query(
@@ -30,11 +29,6 @@ const getBucketId = async (bucketPath) => {
   }
 }
 
-// ========================== createBucket ==========================
-// DATE: 1-29-24
-// QUESTION: Should Postgresql should fill in `creation_date` value with
-//           current date/time?
-// QUESTION: Should we standardized `creation_date` and `timestamp`?
 const createBucket = async (bucketPath) => {
   try {
     let result = await db.query(

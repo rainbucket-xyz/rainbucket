@@ -1,5 +1,6 @@
 const Pool = require('pg').Pool
 const Bucket = require('./bucketService');
+const Payload = require('./payloadServices');
 const db = new Pool({
   user: 'admin',           // 1-29-24 > Update later with correct info
   host: 'localhost',
@@ -8,7 +9,6 @@ const db = new Pool({
   port: 5432,
 })
 
-// ===================== getAllRaindrops =====================
 const getAllRaindrops = async (bucketPath) => {
   try {
     let bucketId = await Bucket.getBucketId(bucketPath)
@@ -23,14 +23,13 @@ const getAllRaindrops = async (bucketPath) => {
   }
 }
 
-// ========================== createRaindrop ==========================
-const createRaindrop = async (bucketPath, method, timestamp, path) => {
+const createRaindrop = async (bucketPath, method, path) => {
   try {
     let bucketId = await Bucket.getBucketId(bucketPath);
-    let mongoId = await createRaindropPayload(request);
+    let mongoId = await Payload.createRaindropPayload(request);
     let result = await db.query(
-      'INSERT INTO raindrops (bucket_id, mongo_id, http_method, timestamp, path) VALUES ($1, $2, $3, $4, $5) RETURNING *',
-      [bucketId, mongoId, method, timestamp, path]
+      'INSERT INTO raindrops (bucket_id, mongo_id, http_method, path) VALUES ($1, $2, $3, $4) RETURNING *',
+      [bucketId, mongoId, method, path]
     );
 
     return result;

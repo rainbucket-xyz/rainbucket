@@ -20,10 +20,8 @@ const Raindrop = require('../models/raindrop')
 //   });
 //   mongoose.connection.close();
 // });
+// ===========================================================================
 
-// ===================== createRaindropPayload ==========================
-// DATE: 1-29-24
-// QUESTION: Do I have the correct return value?
 async function createRaindropPayload(request, response) {
   const body = request.body
   const raindrop = new Raindrop({
@@ -35,7 +33,6 @@ async function createRaindropPayload(request, response) {
   return savedRaindrop.id;
 }
 
-// ======================== getRaindropPayload ==========================
 async function getRaindropPayload(id) {
   try {
     const raindrop = await Raindrop.findById(id);
@@ -47,7 +44,6 @@ async function getRaindropPayload(id) {
 
 // ============================ etc ==============================
 // QUESTION: How and where to use delete for cron job?
-// QUESTION: WEBTOKEN? FOR USER NAMES? DO WE NEED IT FOR RAINBUCKET
 
 // deleteRaindrop (SCRIPT?)
 // async function deleteRaindrop(request, response) {
@@ -55,11 +51,7 @@ async function getRaindropPayload(id) {
 //   response.status(204).end();
 // }
 
-// const jwt = require('jsonwebtoken')
-// const getTokenFrom = request => {
-//   const authorization = request.get('authorization')
-//   if (authorization && authorization.startsWith('Bearer ')) {
-//     return authorization.replace('Bearer ', '')
-//   }
-//   return null
-// }
+module.exports = {
+  createRaindropPayload,
+  getRaindropPayload,
+}

@@ -1,16 +1,13 @@
 const mongoose = require('mongoose')
 
-// QUESTION: What are the appropirate data types for Raindrop Schema?
 const raindropSchema = new mongoose.Schema({
   headers: {
-    type: String,
+    type: Object,
     required: true,
-    minlength: 0 
   },
   payload: {
-    type: String,
+    type: Object,
     required: true,
-    minlength: 0
   }
 })
 
