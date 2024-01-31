@@ -25,14 +25,17 @@ app.post("/api/bucket/new", (req, res) => {
 app.get("/api/bucket/:bucket_path/raindrop/:raindrop_id", (req, res) => {
   // database.getRaindrop(bucket_path, raindrop_id)
   // return JSON object(?) of raindrop details
-})
+});
 
 // ENDPOINT FOR WEBHOOK UPDATERS
-app.all('/b/:bucket_path/*', (req, res) => {
+app.all('/b/:bucket_path/:*', (req, res) => {
   // ALWAYS save the notification to our database (create a new raindrop)
   // if the client who the path belongs to is currently active
   // then send them the notification(raindroplet)
   // in the end: send 200 OK to notifier
+
+  bucketService.createRaindrop(req, req.params.bucket_path);
+
 
   console.log('message received: '+ req.body.data);   // log that we received message
 
