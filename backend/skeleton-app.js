@@ -7,13 +7,9 @@ const cors = require("cors");
 // const bucketService = require("./services/bucketService");
 // const raindropService = require("./services/bucket");
 
-// const bucketRouter = require("./services/bucket");
+const bucketRouter = require("./routes/bucket");
 // process.env.SESSION_SECRET || '2401'
-app.use(cors({
-  origin: 'http://localhost:5173',
-  credentials: true,
-}));
-
+app.use(cors());
 
 app.use(session({
   cookie: {
@@ -29,7 +25,7 @@ app.use(session({
 }));
 
 // User asks for frontpage
-app.get("/api/bucket", async (req, res) => {
+app.get("/", async (req, res) => {
 	// check if they have a session
 	// if so, return/load their bucket_path/info
 	if (req.session.bucketPath) {
@@ -37,15 +33,17 @@ app.get("/api/bucket", async (req, res) => {
     // let bucket = `{"bucketPath":null}`
 		res.json({bucketPath: "https://raindrop.xyz/b/hjsdfiayd"})
 	} else {
-    res.json({bucketPath: "https://raindrop.xyz/b/hjsdfiayd"})
-		// res.json({bucketPath:null})
+    // res.json({bucketPath: "https://raindrop.xyz/b/hjsdfiayd"})
+		res.json({bucketPath:null})
 	}
   // return homepage with that session
 });
 
+app.use("/api/bucket", bucketRouter);
+
 module.exports = app;
 
-// app.use("/api/bucket", bucketRouter);
+
 
 // // ENDPOINT FOR WEBHOOK UPDATERS
 // app.all('/b/:bucket_path/:path*', (req, res) => {
