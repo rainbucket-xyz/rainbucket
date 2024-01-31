@@ -18,7 +18,13 @@ router.post("/new", async (req, res) => {
 
 // User clicks on specific 'raindrop'
 router.get("/:bucket_path/raindrop/:raindrop_id", (req, res) => {
-
+	try {
+		let rainDropId = req.params.raindrop_id;
+		let raindrop = bucketService.getRaindrop(rainDropId);
+		return raindrop;
+	} catch (error) {
+		res.status(400).send();
+	}
   // database.getRaindrop(bucket_path, raindrop_id)
   // return JSON object(?) of raindrop details
 })
