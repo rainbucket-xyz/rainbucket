@@ -39,7 +39,7 @@ app.get("/", async (req, res) => {
 app.use("/api/bucket", bucketRouter);
 
 // ENDPOINT FOR WEBHOOK UPDATERS
-app.all('/b/:bucket_path/*', (req, res) => {
+app.all('/b/:bucket_path/:path*', (req, res) => {
   // ALWAYS save the notification to our database (create a new raindrop)
   // if the client who the path belongs to is currently active
   // then send them the notification(raindroplet)
