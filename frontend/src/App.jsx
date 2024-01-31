@@ -1,6 +1,6 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import { useState, useEffect } from 'react'
+// import reactLogo from './assets/react.svg'
+// import viteLogo from '/vite.svg'
 import './whitespace-reset.css'
 import './App.css'
 function Header() {
@@ -116,9 +116,18 @@ function NewBucketView() {
 }
 function App() {
   // use effect to determine if user has a bucket(?)
-  const hasBucket = false;
-  if (hasBucket) {
-    return <RaindropsView/>
+  const [bucket, setBucket] = useState({});
+  const APIGETBUCKET = "http://localhost:3000/api/bucket"
+  useEffect(() => {
+    (async () => {
+      let res = await fetch(APIGETBUCKET);
+      console.log(res);
+      setBucket(res);
+    })();
+  }, []);
+
+  if (bucket.bucketPath) {
+    return <RaindropsView bucketPath={bucket.bucketPath}/>
   } else {
     return <NewBucketView/>
   }
