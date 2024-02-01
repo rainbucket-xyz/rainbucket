@@ -1,6 +1,10 @@
 const mongoose = require('mongoose')
 
 const raindropSchema = new mongoose.Schema({
+  bucket_path: {
+    type: String,
+    required: true,
+  },
   headers: {
     type: Object,
     required: true,
