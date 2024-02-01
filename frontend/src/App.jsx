@@ -22,10 +22,10 @@ function Bucketbar({bucketPath}) {
   )
 }
 
-function Raindrop({ raindrop }) {
+function Raindrop({ clickHandler, raindrop, activeRaindropId }) {
 
   return (
-    <div className="raindrop" data-id={raindrop.mongo_id}>
+    <div className={`raindrop ${activeRaindropId === raindrop.mongo_id ? "active" : ""}`} data-id={raindrop.mongo_id} onClick={clickHandler}>
       <p className="timestamp" data-timestamp={raindrop.timestamp}>{raindrop.timestamp}</p>
       <p className="raindrop-method" data-http-method={raindrop.http_method}>{raindrop.http_method}</p>
       <p className="raindrop-path" data-path={raindrop.path}>{raindrop.path}</p>
@@ -33,9 +33,9 @@ function Raindrop({ raindrop }) {
   )
 }
 
-function RaindropDayGroup({raindrops}) {
+function RaindropDayGroup({clickHandler, raindrops, activeRaindropId}) {
   let raindropsList = raindrops.map((raindrop, index) => {
-    return <Raindrop key={index} raindrop={raindrop}/>
+    return <Raindrop key={index} raindrop={raindrop} clickHandler={clickHandler} activeRaindropId={activeRaindropId}/>
   })
 
   return (
@@ -50,49 +50,78 @@ function RaindropDayGroup({raindrops}) {
   )
 }
 
-function Raindrops({raindrops}) {
+function Raindrops({clickHandler, raindrops, activeRaindropId}) {
   return(
     <section id="raindrops">
-        <h2>raindrops</h2>
-        <RaindropDayGroup raindrops={raindrops}/>
-      </section>
+      <h2>raindrops</h2>
+      <RaindropDayGroup clickHandler={clickHandler} raindrops={raindrops} activeRaindropId={activeRaindropId}/>
+    </section>
   )
 }
 
-function RaindropDetails({ activeRaindrop }) {
-  const [ payload, setPayload ] = useState(null);
+function RaindropMethodPathSection({method, path}) {
+  return (
+    <div id="raindrop-details">
+      <p className="raindrop-detail-heading">Details</p>
+      <p>{method}</p>
+      <p>{path}</p>
+    </div>
+  )
+}
+
+function RaindropHeader({header, value}){
+  return (
+    <p>{header} -- {value}</p>
+  )
+}
+function RaindropHeadersSection({headers}) {
+  let headersArr = Object.keys(headers);
+  return(
+    <div id='raindrop-headers'>
+      <p className="raindrop-detail-heading">Headers</p>
+      
+      <div>
+        { headersArr.map((header, idx) => {
+          let value = headers[header]
+          return <RaindropHeader key={idx} header={header} value={value} />
+        }) }
+      </div>
+    </div>
+  )
+}
+function RaindropBodySection({payload}) {
+  return (
+    <div id='raindrop-body'>
+      <p className="raindrop-detail-heading">Body</p>
+      <pre>
+        {JSON.stringify(payload)}
+      </pre>
+  </div>
+  )
+}
+
+function RaindropDetails({ activeRaindropId, bucketPath }) {
+  const [ raindrop, setRaindrop ] = useState(null);
   
   useEffect(() => {
-    console.log("raindropdetails: ",activeRaindrop.data.id);
+    console.log("raindropdetails: ",activeRaindropId);
+    if (activeRaindropId) {     
+      const subpath = `api/bucket/${bucketPath}/raindrop/${activeRaindropId}`;
+      (async () => {
+        const res = await fetch(APIGETBUCKET + subpath, { credentials: "include"});
+        const data = await res.json();
+        console.log(data)
+        setRaindrop(data); // {headers: {}, payload: {}}
+      })()
+    }
+  }, [activeRaindropId]); 
 
-    const subpath = `api/bucket/${bucketPath}/raindrop/${activeRaindrop.data.id}`;
-    // (async () => {
-    //   const res = await fetch(APIGETBUCKET + subpath);
-    //   const data = await res.json();
-    //   setPayload(data); // {headers: {}, payload: {}}
-    // })()
-  }, []); 
-
-  if (activeRaindrop){
+  if (activeRaindropId && raindrop){
     return (
       <section id="raindrop-detail-container">
-        <div id="raindrop-details">
-          <p className="raindrop-detail-heading">Details</p>
-          <p>{}</p>
-          <p>/star/musical</p>
-        </div>
-        <div id='raindrop-headers'>
-          <p className="raindrop-detail-heading">Headers</p>
-          <div>
-            Some headers here
-          </div>
-        </div>
-        <div id='raindrop-body'>
-          <p className="raindrop-detail-heading">Body</p>
-          <pre>
-            some stuff here
-          </pre>
-        </div>
+       <RaindropMethodPathSection method={raindrop.method} path={raindrop.path}/>
+       <RaindropHeadersSection headers={raindrop.headers}/>
+       <RaindropBodySection payload={raindrop.payload} />
       </section> 
     )
   } else {
@@ -118,10 +147,18 @@ function RaindropDetails({ activeRaindrop }) {
 
 function Main({ bucketPath }) {
   const [ raindrops, setRaindrops ] = useState([]);
-  const [ activeRaindrop, setActiveRaindrop ] = useState(null);
+  const [ activeRaindropId, setActiveRaindropId ] = useState(null); 
+  // mongo_id of a specific raindrop
   
   function clickHandler(e) {
     // if activeRaindrop isnt null, remove className active from old active raindrop
+    setActiveRaindropId(e.currentTarget.dataset.id);
+
+
+
+    // look at raindrop user clicked on, retrieve its mongo_id
+    // set activeRaindrop to retrieved mongo_id
+    
     // set the className of clicked raindrop
     // set active raindrop to clicked raindrop
   }
@@ -129,7 +166,7 @@ function Main({ bucketPath }) {
   useEffect(() => {
     const subpath = `api/bucket/${bucketPath}/raindrop/all`;
     (async () => {
-      const res = await fetch(APIGETBUCKET + subpath);
+      const res = await fetch(APIGETBUCKET + subpath, {credentials: 'include'});
       const data = await res.json();
       setRaindrops(data.raindrops);
     })()
@@ -137,8 +174,8 @@ function Main({ bucketPath }) {
 
   return(
     <main>
-      <Raindrops clickHandler={clickHandler} raindrops={raindrops}/>
-      <RaindropDetails activeRaindrop={activeRaindrop}/>
+      <Raindrops clickHandler={clickHandler} raindrops={raindrops} activeRaindropId={activeRaindropId}/>
+      <RaindropDetails activeRaindropId={activeRaindropId} bucketPath={bucketPath}/>
     </main>
   )
 }
@@ -164,7 +201,7 @@ function RaindropsView({ bucketPath }) {
 
 function NewBucketView({ setBucket }) {
   async function buttonHandler(e) {
-    let res = await fetch(APIGETBUCKET+"api/bucket/new", { method: "POST"});
+    let res = await fetch(APIGETBUCKET+"api/bucket/new", { method: "POST", credentials: "include"});
     let data = await res.json();
     setBucket(data);
     // send a request to create new bucket
@@ -185,7 +222,8 @@ function App() {
 
   useEffect(() => {
     (async () => {
-      let res = await fetch(APIGETBUCKET, { redirect: 'follow' });
+      let res = await fetch(APIGETBUCKET, {credentials: "include" });
+      // redirect: 'follow'
       console.log(res)
       let data = await res.json(); // Parse the response data
       setBucket(data); // Pass the response data to setBucket
