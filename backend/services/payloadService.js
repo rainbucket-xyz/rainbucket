@@ -1,11 +1,16 @@
+const config = require("../utils/config");
 const mongoose = require('mongoose')
 const Raindrop = require('../models/raindrop')
 
+mongoose.set('strictQuery', false);
+mongoose.connect(config.TEST_MONGODB_URI);
+
 // ===================== Add Example Data to MongoDB ==========================
 // mongoose.set('strictQuery', false);
-// mongoose.connect(/* MONGO URL */);
+// mongoose.connect();
 
 // const example_raindrop = new Raindrop({
+//   bucket_path: '777zzz',
 //   headers: 'example header',
 //   payload: 'example payload',
 // });
@@ -22,14 +27,15 @@ const Raindrop = require('../models/raindrop')
 // });
 // ===========================================================================
 
-async function createRaindropPayload(request, response) {
-  const body = request.body
+async function createRaindropPayload(bucketPath, headers, payload) {
   const raindrop = new Raindrop({
-    headers: body.headers,
-    payload: body.payload
+    bucket_path: bucketPath,
+    headers: headers,
+    payload: payload,
   })
 
   const savedRaindrop = await raindrop.save();
+  console.log(savedRaindrop);
   return savedRaindrop.id;
 }
 
@@ -42,16 +48,17 @@ async function getRaindropPayload(id) {
   }
 }
 
-// ============================ etc ==============================
-// QUESTION: How and where to use delete for cron job?
-
-// deleteRaindrop (SCRIPT?)
-// async function deleteRaindrop(request, response) {
-//   await Raindrop.findByIdAndDelete(request.params.id)
-//   response.status(204).end();
-// }
+async function deleteRaindropPayload(bucketPath, res) {
+  try {
+    await Raindrop.findByIdAndDelete(bucketPath);
+    res.status(204).end();
+  } catch (error) {
+    throw error;
+  }
+}
 
 module.exports = {
   createRaindropPayload,
   getRaindropPayload,
+  deleteRaindropPayload,
 }

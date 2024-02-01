@@ -1,62 +1,64 @@
 const config = require("../utils/config");
 const router = require("express").Router();
 const bcrypt = require("bcrypt");
-// const bucketService = require("../services/bucket.js");
 const bucketFormatter = require("../utils/bucketFormatter");
+const bucketService = require("../services/bucketService");
+const raindropService = require("../services/raindropService");
+const payloadService = require("../services/payloadService");
 
-// User clicks 'create new bucket' button:
-// Create a new Bucket
 router.post("/new", async (req, res) => {
 	try {
 		let userSessionId = req.session.id;
 		let hash = await bcrypt.hash(userSessionId, Number(config.SALT));
     let bucketPath = bucketFormatter(hash);
-    req.session.bucketPath = bucketPath;
     
-    // await bucketService.createBucket(bucketPath);
-    res.json({ bucketPath });
+    req.session.bucketPath = bucketPath;
+		let newBucket = await bucketService.createBucket(bucketPath);
+		res.json({ bucketPath });
 	} catch (error) {
-    console.log(error)
 		res.status(400).send();
 	}
 });
 
 router.get("/:bucket_path/raindrop/all", async (req, res) => {
-	// return all raindrops for that bucket
-  res.json({raindrops:[
-	{timestamp: "1/25/24 6:55:33AM", bucket_id: 1, mongo_id: "123-23", http_method: "GET", path: "/stars/musical"},
-	{timestamp: "1/24/24 5:55:33AM", bucket_id: 2, mongo_id: "234-43", http_method: "POST", path: ""},
-	{timestamp: "1/24/24 4:55:33AM", bucket_id: 3, mongo_id: "456-23", http_method: "GET", path: "/stars"},
-  ]})
+	try {
+		let bucketPath = req.params.bucket_path;
+		let raindrops = await raindropService.getAllRaindrops(bucketPath);
+    
+		res.json({ "raindrops": raindrops });
+	} catch (error) {
+		res.status(400).send();
+	}
 });
 
-// User clicks on specific 'raindrop'
-router.get("/:bucket_path/raindrop/:raindrop_id", (req, res) => {
+router.get("/:bucket_path/raindrop/:raindrop_id", async (req, res) => {
+	try {
+		const raindropId = req.params.raindrop_id;
+		const p_raindrop = await raindropService.getRaindrop(raindropId);
+		const m_raindrop = await payloadService.getRaindropPayload(raindropId);
+		const raindrop = {
+			method: p_raindrop.method,
+			path: p_raindrop.path,
+			headers: m_raindrop.headers,
+			payload: m_raindrop.payload,
+		};
 
-  res.json({
-		method: "GET", 
-		path: "/stars/musical", 
-		headers: {
-			"Content-Type": "lols",
-      "Content-Length": "4",
-			"Allen": "is cool"
-  	},
-    payload: {
-      "this is": "brutal",
-      "but so": "are we",
-    }
-	})
-	// try {
-	// 	let rainDropId = req.params.raindrop_id;
-	// 	let raindrop = payloadServices.getRaindrop(rainDropId);
-	// 	res.json(raindrop);
-	// } catch (error) {
-	// 	res.status(400).send();
-	// }
-  // database.getRaindrop(bucket_path, raindrop_id)
-  // return JSON object(?) of raindrop details
+		res.json(raindrop);
+	} catch (error) {
+		res.status(400).send();
+	}
 })
 
-// get all raindrops
+router.delete("/:bucket_path/delete", async (req, res) => {
+	try {
+		const bucketPath = req.params.bucket_path
+    
+		await payloadService.deleteRaindropPayload(bucketPath);
+		const result = await bucketService.deleteBucket(bucketPath);
+		res.json(result);
+	} catch (error) {
+		res.status(400).send();
+	}
+});
 
 module.exports = router;

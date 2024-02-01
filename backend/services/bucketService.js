@@ -1,29 +1,20 @@
 const Pool = require('pg').Pool
 const db = new Pool({
-  user: 'admin',           // 1-29-24 > Update later with correct info
+  user: 'team5',           // 1-29-24 > Update later with correct info
   host: 'localhost',
-  database: 'rainbucket',  // 1-29-24 > Update later with correct info
-  password: '12345',       // 1-29-24 > Update later with correct info
-  port: 5432,              // 1-29-24 > QUESTION: OK same port as raindrops?
-});
-
-// ========================== getBucket ==========================
-// DATE: 1-29-24
-// QUESTION: What data does this function need to return?
-// QUESTION: Can backend just use already defined query functions?
-
-// function getBucket(bucketPath) {
-//   ...
-// }
+  database: 'test_rainbucket_3',  // 1-29-24 > Update later with correct info
+  password: '',       // 1-29-24 > Update later with correct info
+  port: 5432,
+})
 
 const getBucketId = async (bucketPath) => {
   try {
     let result = await db.query(
-      'SELECT bucket_id FROM buckets WHERE bucket_path = $1',
+      'SELECT id FROM buckets WHERE bucket_path = $1',
       [bucketPath]
     );
 
-    return result;
+    return result.rows[0].id;
   } catch (error) {
     throw error;
   }
@@ -32,11 +23,23 @@ const getBucketId = async (bucketPath) => {
 const createBucket = async (bucketPath) => {
   try {
     let result = await db.query(
-      'INSERT INTO buckets (bucket_path) VALUES ($1) RETURNING *',
+      'INSERT INTO buckets (bucket_path, creation_date) VALUES ($1, NOW())',
+      [bucketPath]
+    );
+    return result.rows[0];
+  } catch (error) {
+    throw error;
+  }
+}
+
+const deleteBucket = async (bucketPath, res) => {
+  try {
+    await db.query(
+      'DELETE FROM buckets WHERE bucket_path = $1',
       [bucketPath]
     );
 
-    return result;
+    res.json({message: `${bucketPath} deleted from postgres! :D`});
   } catch (error) {
     throw error;
   }
@@ -45,4 +48,5 @@ const createBucket = async (bucketPath) => {
 module.exports = {
   getBucketId,
   createBucket,
+  deleteBucket,
 }
