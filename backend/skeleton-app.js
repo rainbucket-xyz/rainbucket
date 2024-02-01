@@ -1,3 +1,4 @@
+const WebSocket = require("ws");
 const config = require("./utils/config");
 console.log(config.SESSION_MAX_AGE);
 const express = require('express');
@@ -8,8 +9,13 @@ const cors = require("cors");
 // const raindropService = require("./services/bucket");
 
 const bucketRouter = require("./routes/bucket");
-// process.env.SESSION_SECRET || '2401'
-app.use(cors());
+
+let clients = {}
+
+app.use(cors({
+  origin: true,
+  credentials: true,
+}));
 
 app.use(session({
   cookie: {
@@ -19,7 +25,7 @@ app.use(session({
     secure: false,
   },
   name: "rainbucket-user-session-id",
-  resave: false,
+  resave: true,
   saveUninitialized: true,
   secret: config.SESSION_SECRET,
 }));
@@ -31,7 +37,8 @@ app.get("/", async (req, res) => {
 	if (req.session.bucketPath) {
 		// let bucket = await bucketService.getBucket(bucketPath)
     // let bucket = `{"bucketPath":null}`
-		res.json({bucketPath: "https://raindrop.xyz/b/hjsdfiayd"})
+		// res.json({bucketPath: `https://raindrop.xyz/b/${req.session.bucketPath}`})
+    res.json({bucketPath: req.session.bucketPath})
 	} else {
     // res.json({bucketPath: "https://raindrop.xyz/b/hjsdfiayd"})
 		res.json({bucketPath:null})
@@ -41,28 +48,51 @@ app.get("/", async (req, res) => {
 
 app.use("/api/bucket", bucketRouter);
 
+// ENDPOINT FOR WEBHOOK UPDATERS
+app.all('/b/:bucket_path/:path*', (req, res) => {
+  // ALWAYS save the notification to our database (create a new raindrop)
+  // if the client who the path belongs to is currently active
+  // then send them the notification(raindroplet)
+  // in the end: send 200 OK to notifier
+
+  console.log('message received: ');   // log that we received message
+  let bucket_path = req.params.bucket_path
+  console.log("client found? ", clients[bucket_path]);
+  if (clients[bucket_path]) {
+    console.log(`sending it to client ${bucket_path}`);
+    const hardCodeRaindrop = {timestamp: "1/27/24 8:55:33AM", bucket_id: 1, mongo_id: "1343", http_method: "GET", path: "/this/is/new"}
+    clients[bucket_path].send(JSON.stringify(hardCodeRaindrop));
+  }
+  res.send('Cool thanks'); // 200 ok back to postman
+})
+
+// web socket server that connects to clients
+// NOTE port is different than express server port
+const wss = new WebSocket.Server({port: 8888});
+
+wss.on("connection", (ws, req) => {
+  console.log("Client connected: ");
+  let bucketPath;
+  ws.on('message', (message) => {
+    // console.log("message", message.toString());
+    bucketPath = message.toString();
+    clients[bucketPath] = ws;
+    console.log(clients);
+  });
+
+  ws.on("close", () => {
+    delete clients[bucketPath];
+    console.log("client disconnected");
+  });
+})
+
+
 module.exports = app;
 
 
 
-// // ENDPOINT FOR WEBHOOK UPDATERS
-// app.all('/b/:bucket_path/:path*', (req, res) => {
-//   // ALWAYS save the notification to our database (create a new raindrop)
-//   // if the client who the path belongs to is currently active
-//   // then send them the notification(raindroplet)
-//   // in the end: send 200 OK to notifier
-
-//   console.log('message received: ' + req.body.data);   // log that we received message
-
-//   if (clients["id1"]) {
-//     console.log('sending it to client id1');
-//     clients["id1"].send(`${req.body.data}`);
-//   }
-//   res.send('Cool thanks'); // 200 ok back to postman
-// })
-
 
 // Delete a bucket (maybe implement later)
-// app.delete("/api/", (req, res) => {
+// app.delete("/api/bucket/:bucket_path/delete", (req, res) => {
 //   // delete existing bucket (and session data?)
 // });

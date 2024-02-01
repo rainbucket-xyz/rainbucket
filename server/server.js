@@ -31,7 +31,7 @@ const wss = new WebSocket.Server({port: 8888});
 wss.on("connection", (ws, req) => {
 
   console.log("Client connected: " + req);
-  clients["id1"] = ws;
+  clients[r] = ws;
 
   ws.on("close", () => {
     delete clients["id1"];

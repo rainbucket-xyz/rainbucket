@@ -1,22 +1,22 @@
+const config = require("../utils/config");
 const router = require("express").Router();
+const bcrypt = require("bcrypt");
 // const bucketService = require("../services/bucket.js");
+const bucketFormatter = require("../utils/bucketFormatter");
 
 // User clicks 'create new bucket' button:
 // Create a new Bucket
 router.post("/new", async (req, res) => {
-  // input: user session
-  // create a hash of user session for bucket_path (generate unique bucket_path)
-  // create a new bucket in database
-  // return bucket_path
-  // res.json({
-  //   bucketPath: "http://localhost:3000/b/woiejfowijef"
-  // });
 	try {
-		// let newBucket = await bucketService.createBucket(req);
-		res.json({
-			bucketPath: "woiejfowijef"
-		});
+		let userSessionId = req.session.id;
+		let hash = await bcrypt.hash(userSessionId, Number(config.SALT));
+    let bucketPath = bucketFormatter(hash);
+    req.session.bucketPath = bucketPath;
+    
+    // await bucketService.createBucket(bucketPath);
+    res.json({ bucketPath });
 	} catch (error) {
+    console.log(error)
 		res.status(400).send();
 	}
 });
@@ -32,13 +32,27 @@ router.get("/:bucket_path/raindrop/all", async (req, res) => {
 
 // User clicks on specific 'raindrop'
 router.get("/:bucket_path/raindrop/:raindrop_id", (req, res) => {
-	try {
-		let rainDropId = req.params.raindrop_id;
-		let raindrop = payloadServices.getRaindrop(rainDropId);
-		res.json(raindrop);
-	} catch (error) {
-		res.status(400).send();
-	}
+
+  res.json({
+		method: "GET", 
+		path: "/stars/musical", 
+		headers: {
+			"Content-Type": "lols",
+      "Content-Length": "4",
+			"Allen": "is cool"
+  	},
+    payload: {
+      "this is": "brutal",
+      "but so": "are we",
+    }
+	})
+	// try {
+	// 	let rainDropId = req.params.raindrop_id;
+	// 	let raindrop = payloadServices.getRaindrop(rainDropId);
+	// 	res.json(raindrop);
+	// } catch (error) {
+	// 	res.status(400).send();
+	// }
   // database.getRaindrop(bucket_path, raindrop_id)
   // return JSON object(?) of raindrop details
 })
