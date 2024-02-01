@@ -14,7 +14,7 @@ const getAllRaindrops = async (bucketPath) => {
     let bucketId = await Bucket.getBucketId(bucketPath);
     console.log(bucketId);
     let result = await db.query(
-      'SELECT * FROM raindrop WHERE bucket_id = $1',
+      'SELECT * FROM raindrops WHERE bucket_id = $1',
       [bucketId]
     );
 
@@ -27,7 +27,7 @@ const getAllRaindrops = async (bucketPath) => {
 const getRaindrop = async (mongoId) => {
   try {
     let result = await db.query(
-      'SELECT * FROM raindrop WHERE mongo_id = $1',
+      'SELECT * FROM raindrops WHERE mongo_id = $1',
       [mongoId]
     );
 
@@ -42,7 +42,7 @@ const createRaindrop = async (bucketPath, method, path, headers, payload) => {
     let bucketId = await Bucket.getBucketId(bucketPath);
     let mongoId = await Payload.createRaindropPayload(bucketPath, headers, payload);
     let result = await db.query(
-      'INSERT INTO raindrop (bucket_id, mongo_id, http_method, path) VALUES ($1, $2, $3, $4)',
+      'INSERT INTO raindrops (bucket_id, mongo_id, http_method, path) VALUES ($1, $2, $3, $4)',
       [bucketId, mongoId, method, path]
     );
 

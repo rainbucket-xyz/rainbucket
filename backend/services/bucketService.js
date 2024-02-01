@@ -10,7 +10,7 @@ const db = new Pool({
 const getBucketId = async (bucketPath) => {
   try {
     let result = await db.query(
-      'SELECT id FROM bucket WHERE bucket_path = $1',
+      'SELECT id FROM buckets WHERE bucket_path = $1',
       [bucketPath]
     );
 
@@ -23,7 +23,7 @@ const getBucketId = async (bucketPath) => {
 const createBucket = async (bucketPath) => {
   try {
     let result = await db.query(
-      'INSERT INTO bucket (bucket_path, creation_date) VALUES ($1, NOW())',
+      'INSERT INTO buckets (bucket_path, creation_date) VALUES ($1, NOW())',
       [bucketPath]
     );
     return result.rows[0];
@@ -35,7 +35,7 @@ const createBucket = async (bucketPath) => {
 const deleteBucket = async (bucketPath, res) => {
   try {
     await db.query(
-      'DELETE FROM bucket WHERE bucket_path = $1',
+      'DELETE FROM buckets WHERE bucket_path = $1',
       [bucketPath]
     );
 
