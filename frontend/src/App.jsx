@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react'
-// import reactLogo from './assets/react.svg'
-// import viteLogo from '/vite.svg'
+import useWebSocket, { ReadyState } from 'react-use-websocket';
 import './whitespace-reset.css'
 import './App.css'
+
 const APIGETBUCKET = "http://localhost:3000/"; // Replace with the correct API endpoint
 const BASEBUCKET = "http://localhost:3000/b"
+// const SOCKETURL = "wss://localhost:8888";
+
 function Header() {
   return (
     <header>
@@ -147,20 +149,12 @@ function RaindropDetails({ activeRaindropId, bucketPath }) {
 
 function Main({ bucketPath }) {
   const [ raindrops, setRaindrops ] = useState([]);
-  const [ activeRaindropId, setActiveRaindropId ] = useState(null); 
-  // mongo_id of a specific raindrop
-  
+  const [ activeRaindropId, setActiveRaindropId ] = useState(null); // mongo_id of a specific raindrop
+  // const { sendMessage, lastMessage, readyState } = useWebSocket("wss://localhost:8888"); // use "onOpen" option to send bucketPath
+  const ws = new WebSocket("ws://localhost:8888");
+  // sendMessage(bucketPath)
   function clickHandler(e) {
-    // if activeRaindrop isnt null, remove className active from old active raindrop
     setActiveRaindropId(e.currentTarget.dataset.id);
-
-
-
-    // look at raindrop user clicked on, retrieve its mongo_id
-    // set activeRaindrop to retrieved mongo_id
-    
-    // set the className of clicked raindrop
-    // set active raindrop to clicked raindrop
   }
 
   useEffect(() => {
@@ -172,6 +166,32 @@ function Main({ bucketPath }) {
     })()
   }, []); 
 
+  useEffect(() => {
+    ws.addEventListener("open", () => {
+      console.log("We are connected!");
+      ws.send(bucketPath);
+    })
+  
+    ws.addEventListener("message", (e) => {
+      // e.data == data
+      let raindrop = JSON.parse(e.data);
+      console.log(raindrop);
+      setRaindrops([raindrop, ...raindrops]); 
+      console.log('raindrop received');
+    })
+  }, [])
+  
+  // OLD REACT WEBSOCKET BULLSHIT
+  // useEffect(() => {
+  //   if (lastMessage !== null) {
+  //     setRaindrops(raindrops.concat(lastMessage));
+  //   }
+  // }, [lastMessage]);
+
+
+  // headers: {
+  //   'Bucket-Path': 'fhsiuhfsdius'
+  // }
   return(
     <main>
       <Raindrops clickHandler={clickHandler} raindrops={raindrops} activeRaindropId={activeRaindropId}/>
@@ -219,6 +239,7 @@ function NewBucketView({ setBucket }) {
 function App() {
   // use effect to determine if user has a bucket(?)
   const [bucket, setBucket] = useState({});
+  // const [messageHistory, setMessageHistory] = useState([]);
 
   useEffect(() => {
     (async () => {
