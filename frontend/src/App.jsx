@@ -132,6 +132,7 @@ function RaindropDetails({ activeRaindropId, bucketPath, footerClickHandler, abo
         <div id="rightSection">
           <section id="raindrop-detail-container">
             <RaindropMethodPathSection method={raindrop.method} path={raindrop.path}/>
+            {console.log(raindrop.method)}
             <RaindropHeadersSection headers={raindrop.headers}/>
             <RaindropBodySection payload={raindrop.payload} />
           </section> 

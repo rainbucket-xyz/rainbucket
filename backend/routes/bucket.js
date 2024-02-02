@@ -37,7 +37,7 @@ router.get("/:bucket_path/raindrop/:raindrop_id", async (req, res) => {
 		const p_raindrop = await raindropService.getRaindrop(raindropId);
 		const m_raindrop = await payloadService.getRaindropPayload(raindropId);
 		const raindrop = {
-			method: p_raindrop.method,
+			method: p_raindrop.http_method,
 			path: p_raindrop.path,
 			headers: m_raindrop.headers,
 			payload: m_raindrop.payload,

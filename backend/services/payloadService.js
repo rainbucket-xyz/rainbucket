@@ -28,7 +28,8 @@ async function getRaindropPayload(id) {
 
 async function deleteRaindropPayload(bucketPath) {
   try {
-    return await Raindrop.deleteMany({bucket_path: bucketPath});
+    await Raindrop.deleteMany({ bucket_path: bucketPath });
+    mongoose.connection.close()
   } catch (error) {
     throw error;
   }
