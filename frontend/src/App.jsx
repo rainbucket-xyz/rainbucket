@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react'
 import useWebSocket, { ReadyState } from 'react-use-websocket';
+import Highlight from 'react-highlight'
+import 'highlight.js/styles/base16/humanoid-light.min.css';
 import timeFormatter from '../utils/timeFormatter';
 import './whitespace-reset.css'
 import './App.css'
@@ -10,15 +12,20 @@ const BASEBUCKET = "http://localhost:3000/b"
 function Header() {
   return (
     <header>
-      <h1>RAINBUCKET</h1>
+      {/* <h1>RAINBUCKET</h1> */}
+      <img src='rainbucket-header.svg' alt="rainbucket-logo"></img>
     </header>
   )
 }
 function Bucketbar({bucketPath}) {
+  const copyHandler = (e) => {
+    navigator.clipboard.writeText(BASEBUCKET + "/" + bucketPath);
+  }
   return(
     <section id="bucket-bar">
-      <p>Your bucket is: {BASEBUCKET}/{bucketPath}</p>
-      <button>copy</button>
+      <img src='bucket.svg' alt="bucket"></img>
+      <p><span>Your bucket is: </span> <span id="bucketurl">{BASEBUCKET}/{bucketPath}</span></p>
+      <button onClick={copyHandler}>copy</button>
       <button>delete</button>
     </section>
   )
@@ -28,6 +35,7 @@ function Raindrop({ clickHandler, raindrop, activeRaindropId }) {
 
   return (
     <div className={`raindrop ${activeRaindropId === raindrop.mongo_id ? "active" : ""}`} data-id={raindrop.mongo_id} onClick={clickHandler}>
+      <div className='sidebar'></div>
       <p className="timestamp" data-timestamp={raindrop.timestamp}>{raindrop.timestamp}</p>
       <p className="raindrop-method" data-http-method={raindrop.http_method}>{raindrop.http_method}</p>
       <p className="raindrop-path" data-path={raindrop.path}>{raindrop.path}</p>
@@ -42,9 +50,9 @@ function RaindropDayGroup({clickHandler, raindrops, activeRaindropId}) {
 
   return (
     <div className='raindrops-date'>
-      <div className='raindrops-date-header'>
+      {/* <div className='raindrops-date-header'>
         <p>January 30, 2024</p>
-      </div>
+      </div> */}
       
       {raindropsList}
 
@@ -65,7 +73,7 @@ function RaindropMethodPathSection({method, path}) {
   return (
     <div id="raindrop-details">
       <p className="raindrop-detail-heading">Details</p>
-      <p>{method}</p>
+      <p id="rd-method">{method}</p>
       <p>{path}</p>
     </div>
   )
@@ -73,7 +81,10 @@ function RaindropMethodPathSection({method, path}) {
 
 function RaindropHeader({header, value}){
   return (
-    <p>{header} -- {value}</p>
+    <tr>
+      <td>{header}</td>
+      <td>{value}</td>
+    </tr>
   )
 }
 function RaindropHeadersSection({headers}) {
@@ -82,12 +93,12 @@ function RaindropHeadersSection({headers}) {
     <div id='raindrop-headers'>
       <p className="raindrop-detail-heading">Headers</p>
       
-      <div>
+      <table>
         { headersArr.map((header, idx) => {
           let value = headers[header]
           return <RaindropHeader key={idx} header={header} value={value} />
         }) }
-      </div>
+      </table>
     </div>
   )
 }
@@ -95,14 +106,14 @@ function RaindropBodySection({payload}) {
   return (
     <div id='raindrop-body'>
       <p className="raindrop-detail-heading">Body</p>
-      <pre>
+      <Highlight>
         {JSON.stringify(payload)}
-      </pre>
+      </Highlight>
   </div>
   )
 }
 
-function RaindropDetails({ activeRaindropId, bucketPath }) {
+function RaindropDetails({ activeRaindropId, bucketPath, footerClickHandler, aboutVisible }) {
   const [ raindrop, setRaindrop ] = useState(null);
   
   useEffect(() => {
@@ -118,23 +129,29 @@ function RaindropDetails({ activeRaindropId, bucketPath }) {
 
   if (activeRaindropId && raindrop){
     return (
-      <section id="raindrop-detail-container">
-       <RaindropMethodPathSection method={raindrop.method} path={raindrop.path}/>
-       <RaindropHeadersSection headers={raindrop.headers}/>
-       <RaindropBodySection payload={raindrop.payload} />
-      </section> 
+        <div id="rightSection">
+          <section id="raindrop-detail-container">
+            <RaindropMethodPathSection method={raindrop.method} path={raindrop.path}/>
+            <RaindropHeadersSection headers={raindrop.headers}/>
+            <RaindropBodySection payload={raindrop.payload} />
+          </section> 
+          <Footer footerClickHandler={footerClickHandler} aboutVisible={aboutVisible}/>
+        </div>
     )
   } else {
     return (
-      <section id="raindrop-detail-container">
-       <p>Click on a raindrop to inspect it.</p>
-      </section> 
+      <div id="rightSection">
+        <section id="raindrop-detail-container">
+        <p>Click on a raindrop to inspect it.</p>
+        </section> 
+        <Footer footerClickHandler={footerClickHandler} aboutVisible={aboutVisible}/>
+      </div>
     )
   }
  
 }
 
-function Main({ bucketPath }) {
+function Main({ bucketPath, footerClickHandler, aboutVisible }) {
   const [ raindrops, setRaindrops ] = useState([]);
   const [ activeRaindropId, setActiveRaindropId ] = useState(null); 
   const ws = new WebSocket("ws://localhost:8888");
@@ -173,31 +190,31 @@ function Main({ bucketPath }) {
   return(
     <main>
       <Raindrops clickHandler={clickHandler} raindrops={raindrops} activeRaindropId={activeRaindropId}/>
-      <RaindropDetails activeRaindropId={activeRaindropId} bucketPath={bucketPath}/>
+      <RaindropDetails activeRaindropId={activeRaindropId} bucketPath={bucketPath} footerClickHandler={footerClickHandler} aboutVisible={aboutVisible}/>
     </main>
   )
 }
 
-function Footer() {
+function Footer({footerClickHandler, aboutVisible}) {
+  let message = aboutVisible ? "Go back" : "Made with love 👋";
   return (
     <footer>
-      <a href="">Made with love</a>
+      <a onClick={footerClickHandler}>{message}</a>
     </footer>
   )
 }
 
-function RaindropsView({ bucketPath }) {
+function RaindropsView({ bucketPath, footerClickHandler, aboutVisible }) {
   return (
     <>
     <Header/>
     <Bucketbar bucketPath={bucketPath}/>
-    <Main bucketPath={bucketPath}/>
-    <Footer/>
+    <Main bucketPath={bucketPath} footerClickHandler={footerClickHandler} aboutVisible={aboutVisible}/>
   </>
   )
 }
 
-function NewBucketView({ setBucket }) {
+function NewBucketView({ setBucket, footerClickHandler, aboutVisible }) {
   async function buttonHandler(e) {
     let res = await fetch(APIGETBUCKET+"api/bucket/new", { method: "POST", credentials: "include"});
     let data = await res.json();
@@ -208,16 +225,46 @@ function NewBucketView({ setBucket }) {
 
   return (
     <>
-    <button onClick={buttonHandler}>Create New Bucket</button>
-      
+      <div id="newPage">
+        <div id="np-copyContainer">
+          <img src='rainbucket.svg' alt="rainbucket-logo"></img>
+          <div id="np-text">
+            <h1>RAINBUCKET</h1>
+            <p>an endpoint to capture and inspect all your requests</p>
+          </div>
+        </div>
+        <button onClick={buttonHandler}>Create New Bucket</button>
+      </div>
+      <Footer footerClickHandler={footerClickHandler} aboutVisible={aboutVisible}/>
+    </>
+  )
+}
+
+function About({footerClickHandler, aboutVisible}) {
+  return (
+    <>
+      <Header />
+      <div id="about-us">
+        <img src="teamphoto.png" alt="aww look at us so cute"></img>
+      </div>
+      <div id="about-us-blurb">
+        <h2>brought to you by the power of ✨ friendship ✨</h2>
+        <p>(and caffeine, tears, and heaps on heaps of dorky jokes)</p>
+        <a href="https://github.com/rainbucket-xyz/rainbucket" target='new'>read our github page →</a>
+      </div>
+      <Footer footerClickHandler={footerClickHandler} aboutVisible={aboutVisible}/>
+      {/* <a> ← Go back</a> */}
     </>
   )
 }
 
 function App() {
-  // use effect to determine if user has a bucket(?)
   const [bucket, setBucket] = useState({});
-  // const [messageHistory, setMessageHistory] = useState([]);
+  const [aboutVisible, setAboutVisible] = useState(false);
+ 
+  function footerClickHandler() {
+    setAboutVisible(!aboutVisible);
+  }
 
   useEffect(() => {
     (async () => {
@@ -226,11 +273,15 @@ function App() {
       setBucket(data); // Pass the response data to setBucket
     })();
   }, []);
-
-  if (bucket.bucketPath) {
-    return <RaindropsView bucketPath={bucket.bucketPath} />;
+ 
+  if (aboutVisible) {  
+    return(<About footerClickHandler={footerClickHandler} aboutVisible={aboutVisible} />)
   } else {
-    return <NewBucketView setBucket={setBucket} />;
+    if (bucket.bucketPath) {
+      return <RaindropsView bucketPath={bucket.bucketPath} footerClickHandler={footerClickHandler} aboutVisible={aboutVisible} />;
+    } else {
+      return <NewBucketView setBucket={setBucket} footerClickHandler={footerClickHandler} aboutVisible={aboutVisible} />;
+    }
   }
 }
 
