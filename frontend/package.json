@@ -10,8 +10,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "highlight.js": "^11.9.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-highlight": "^0.15.0",
     "react-use-websocket": "^4.5.0"
   },
   "devDependencies": {

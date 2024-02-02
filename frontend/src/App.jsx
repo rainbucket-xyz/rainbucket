@@ -1,5 +1,8 @@
 import { useState, useEffect } from 'react'
 import useWebSocket, { ReadyState } from 'react-use-websocket';
+import Highlight from 'react-highlight'
+// import 'highlight.js/styles/default.css';
+import 'highlight.js/styles/base16/humanoid-light.min.css';
 import './whitespace-reset.css'
 import './App.css'
 
@@ -10,15 +13,20 @@ const BASEBUCKET = "http://localhost:3000/b"
 function Header() {
   return (
     <header>
-      <h1>RAINBUCKET</h1>
+      {/* <h1>RAINBUCKET</h1> */}
+      <img src='rainbucket-header.svg' alt="rainbucket-logo"></img>
     </header>
   )
 }
 function Bucketbar({bucketPath}) {
+  const copyHandler = (e) => {
+    navigator.clipboard.writeText(BASEBUCKET + "/" + bucketPath);
+  }
   return(
     <section id="bucket-bar">
-      <p>Your bucket is: {BASEBUCKET}/{bucketPath}</p>
-      <button>copy</button>
+      <img src='bucket.svg' alt="bucket"></img>
+      <p><span>Your bucket is: </span> <span id="bucketurl">{BASEBUCKET}/{bucketPath}</span></p>
+      <button onClick={copyHandler}>copy</button>
       <button>delete</button>
     </section>
   )
@@ -28,6 +36,7 @@ function Raindrop({ clickHandler, raindrop, activeRaindropId }) {
 
   return (
     <div className={`raindrop ${activeRaindropId === raindrop.mongo_id ? "active" : ""}`} data-id={raindrop.mongo_id} onClick={clickHandler}>
+      <div className='sidebar'></div>
       <p className="timestamp" data-timestamp={raindrop.timestamp}>{raindrop.timestamp}</p>
       <p className="raindrop-method" data-http-method={raindrop.http_method}>{raindrop.http_method}</p>
       <p className="raindrop-path" data-path={raindrop.path}>{raindrop.path}</p>
@@ -42,9 +51,9 @@ function RaindropDayGroup({clickHandler, raindrops, activeRaindropId}) {
 
   return (
     <div className='raindrops-date'>
-      <div className='raindrops-date-header'>
+      {/* <div className='raindrops-date-header'>
         <p>January 30, 2024</p>
-      </div>
+      </div> */}
       
       {raindropsList}
 
@@ -65,7 +74,7 @@ function RaindropMethodPathSection({method, path}) {
   return (
     <div id="raindrop-details">
       <p className="raindrop-detail-heading">Details</p>
-      <p>{method}</p>
+      <p id="rd-method">{method}</p>
       <p>{path}</p>
     </div>
   )
@@ -73,7 +82,10 @@ function RaindropMethodPathSection({method, path}) {
 
 function RaindropHeader({header, value}){
   return (
-    <p>{header} -- {value}</p>
+    <tr>
+      <td>{header}</td>
+      <td>{value}</td>
+    </tr>
   )
 }
 function RaindropHeadersSection({headers}) {
@@ -82,12 +94,12 @@ function RaindropHeadersSection({headers}) {
     <div id='raindrop-headers'>
       <p className="raindrop-detail-heading">Headers</p>
       
-      <div>
+      <table>
         { headersArr.map((header, idx) => {
           let value = headers[header]
           return <RaindropHeader key={idx} header={header} value={value} />
         }) }
-      </div>
+      </table>
     </div>
   )
 }
@@ -95,9 +107,9 @@ function RaindropBodySection({payload}) {
   return (
     <div id='raindrop-body'>
       <p className="raindrop-detail-heading">Body</p>
-      <pre>
+      <Highlight>
         {JSON.stringify(payload)}
-      </pre>
+      </Highlight>
   </div>
   )
 }
@@ -176,7 +188,8 @@ function Main({ bucketPath }) {
       // e.data == data
       let raindrop = JSON.parse(e.data);
       console.log(raindrop);
-      setRaindrops([raindrop, ...raindrops]); 
+      console.log(raindrops);
+      setRaindrops([raindrop, ...raindrops]);
       console.log('raindrop received');
     })
   }, [])
@@ -203,7 +216,7 @@ function Main({ bucketPath }) {
 function Footer() {
   return (
     <footer>
-      <a href="">Made with love</a>
+      <a href="">Made with love 👋</a>
     </footer>
   )
 }
@@ -214,7 +227,7 @@ function RaindropsView({ bucketPath }) {
     <Header/>
     <Bucketbar bucketPath={bucketPath}/>
     <Main bucketPath={bucketPath}/>
-    <Footer/>
+    {/* <Footer/> */}
   </>
   )
 }
