@@ -243,7 +243,16 @@ function NewBucketView({ setBucket }) {
 
   return (
     <>
-    <button onClick={buttonHandler}>Create New Bucket</button>
+      <div id="newPage">
+        <div id="np-copyContainer">
+          <img src='rainbucket.svg' alt="rainbucket-logo"></img>
+          <div id="np-text">
+            <h1>RAINBUCKET</h1>
+            <p>an endpoint to capture and inspect all your requests</p>
+          </div>
+        </div>
+        <button onClick={buttonHandler}>Create New Bucket</button>
+      </div>
       
     </>
   )
