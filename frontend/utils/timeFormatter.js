@@ -15,7 +15,7 @@ function timeExtract(timestamp) {
 	const d = new Date(timestamp);
 	return {
 		year: String(d.getFullYear()).slice(2),
-		month: String(d.getMonth()).padStart(2, "0"),
+		month: String(d.getMonth() + 1).padStart(2, "0"),
 		day: String(d.getDate()).padStart(2, "0"),
 		hour: (d.getHours() % 12) ? d.getHours() : 12,
 		minute: d.getMinutes(),
