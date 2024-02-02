@@ -6,8 +6,8 @@ import timeFormatter from '../utils/timeFormatter';
 import './whitespace-reset.css'
 import './App.css'
 
-const APIGETBUCKET = "http://rainbucket.xyz/";
-const BASEBUCKET = "http://rainbucket.xyz/b"
+const APIGETBUCKET = "https://rainbucket.xyz/";
+const BASEBUCKET = "https://rainbucket.xyz/b"
 
 function Header() {
   return (
