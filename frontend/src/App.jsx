@@ -94,10 +94,12 @@ function RaindropHeadersSection({headers}) {
       <p className="raindrop-detail-heading">Headers</p>
       
       <table>
-        { headersArr.map((header, idx) => {
-          let value = headers[header]
-          return <RaindropHeader key={idx} header={header} value={value} />
-        }) }
+        <tbody>
+          { headersArr.map((header, idx) => {
+            let value = headers[header]
+            return <RaindropHeader key={idx} header={header} value={value} />
+          }) }
+        </tbody>
       </table>
     </div>
   )
