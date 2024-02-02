@@ -17,7 +17,7 @@ app.use(cors({
 }));
 app.use(session({
   cookie: {
-    httpOnly: true,
+    httpOnly: false,
     maxAge: Number(config.SESSION_MAX_AGE),
     path: "/",
     secure: false,
