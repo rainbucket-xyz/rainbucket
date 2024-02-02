@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react'
 import useWebSocket, { ReadyState } from 'react-use-websocket';
+import timeFormatter from '../utils/timeFormatter';
 import './whitespace-reset.css'
 import './App.css'
 
-const APIGETBUCKET = "http://localhost:3000/"; // Replace with the correct API endpoint
+const APIGETBUCKET = "http://localhost:3000/";
 const BASEBUCKET = "http://localhost:3000/b"
-// const SOCKETURL = "wss://localhost:8888";
 
 function Header() {
   return (
@@ -106,14 +106,12 @@ function RaindropDetails({ activeRaindropId, bucketPath }) {
   const [ raindrop, setRaindrop ] = useState(null);
   
   useEffect(() => {
-    console.log("raindropdetails: ",activeRaindropId);
     if (activeRaindropId) {     
       const subpath = `api/bucket/${bucketPath}/raindrop/${activeRaindropId}`;
       (async () => {
         const res = await fetch(APIGETBUCKET + subpath, { credentials: "include"});
         const data = await res.json();
-        console.log(data)
-        setRaindrop(data); // {headers: {}, payload: {}}
+        setRaindrop(data);
       })()
     }
   }, [activeRaindropId]); 
@@ -149,21 +147,18 @@ function Main({ bucketPath }) {
     (async () => {
       const res = await fetch(APIGETBUCKET + subpath, {credentials: 'include'});
       const data = await res.json();
-      setRaindrops(data.raindrops);
+      setRaindrops(timeFormatter(data.raindrops));
     })()
   }, []); 
 
   useEffect(() => {
 		const onOpenHandler = () => {
-	    console.log("We are connected!");
 	    ws.send(bucketPath);
     }
 
 		const onMessageHandler = (e) => {
       let raindrop = JSON.parse(e.data);
-			console.log("previous collection", raindrops);
-			console.log("new collection");
-      setRaindrops((previousRaindrops) => [raindrop, ...previousRaindrops]);
+      setRaindrops((previousRaindrops) => [timeFormatter(raindrop), ...previousRaindrops]);
     }
 
 	  ws.addEventListener("open", onOpenHandler)
@@ -227,8 +222,6 @@ function App() {
   useEffect(() => {
     (async () => {
       let res = await fetch(APIGETBUCKET, {credentials: "include" });
-      // redirect: 'follow'
-      console.log(res)
       let data = await res.json(); // Parse the response data
       setBucket(data); // Pass the response data to setBucket
     })();

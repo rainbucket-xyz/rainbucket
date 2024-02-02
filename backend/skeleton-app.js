@@ -46,10 +46,7 @@ app.all('/b/:bucket_path*', async (req, res) => {
   let raindrop = await raindropService.createRaindrop(bucketPath, method, path, headers, payload);
   
 
-	console.log("yo");
   if (clients[bucketPath]) {
-		console.log("raindrop backend", JSON.stringify(raindrop));
-		console.log("user's bucketPath", bucketPath)
     clients[bucketPath].send(JSON.stringify(raindrop));
   }
   res.send('Cool thanks uwu');
@@ -62,7 +59,6 @@ wss.on("connection", (ws, req) => {
   
   ws.on('message', (message) => {
     bucketPath = message.toString();
-		console.log("bucketPath", bucketPath);
     clients[bucketPath] = ws;
   });
 
