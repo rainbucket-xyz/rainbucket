@@ -1,4 +1,4 @@
-const app = require("./skeleton-app.js")
+const app = require("./app.js")
 const config = require("./utils/config")
 // Start the server
 app.listen(config.PORT, () => {

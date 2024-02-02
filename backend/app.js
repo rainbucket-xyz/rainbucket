@@ -10,6 +10,7 @@ const bucketRouter = require("./routes/bucket");
 const clients = {}
 
 app.use(express.json());
+app.use(express.static("dist"));
 app.use(cors({
   origin: true,
   credentials: true,
