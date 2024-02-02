@@ -6,8 +6,8 @@ import timeFormatter from '../utils/timeFormatter';
 import './whitespace-reset.css'
 import './App.css'
 
-const APIGETBUCKET = "http://localhost:3000/";
-const BASEBUCKET = "http://localhost:3000/b"
+const APIGETBUCKET = "http://rainbucket.xyz/";
+const BASEBUCKET = "http://rainbucket.xyz/b"
 
 function Header() {
   return (
@@ -157,7 +157,7 @@ function RaindropDetails({ activeRaindropId, bucketPath, footerClickHandler, abo
 function Main({ bucketPath, footerClickHandler, aboutVisible }) {
   const [ raindrops, setRaindrops ] = useState([]);
   const [ activeRaindropId, setActiveRaindropId ] = useState(null); 
-  const ws = new WebSocket("ws://localhost:8888");
+  const ws = new WebSocket("ws://rainbucket.xyz/websocket-server");
   function clickHandler(e) {
     setActiveRaindropId(e.currentTarget.dataset.id);
   }
