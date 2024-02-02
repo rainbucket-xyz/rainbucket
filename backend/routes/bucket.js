@@ -13,10 +13,10 @@ router.post("/new", async (req, res) => {
     let bucketPath = bucketFormatter(hash);
     
     req.session.bucketPath = bucketPath;
-		let newBucket = await bucketService.createBucket(bucketPath);
+		await bucketService.createBucket(bucketPath);
 		res.json({ bucketPath });
 	} catch (error) {
-		res.status(400).send();
+		res.json({ bucketPath: null })
 	}
 });
 
@@ -55,7 +55,7 @@ router.delete("/:bucket_path/delete", async (req, res) => {
     
 		await payloadService.deleteRaindropPayload(bucketPath);
 		const result = await bucketService.deleteBucket(bucketPath);
-		res.json(result);
+		res.status(200).send();
 	} catch (error) {
 		res.status(400).send();
 	}

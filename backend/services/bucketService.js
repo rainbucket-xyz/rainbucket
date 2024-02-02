@@ -1,10 +1,11 @@
+const config = require("../utils/config");
 const Pool = require('pg').Pool
 const db = new Pool({
-  user: 'team5',           // 1-29-24 > Update later with correct info
-  host: 'localhost',
-  database: 'test_rainbucket_3',  // 1-29-24 > Update later with correct info
-  password: '',       // 1-29-24 > Update later with correct info
-  port: 5432,
+  user: config.PG_USER,
+  host: config.PG_HOST,
+  database: config.PG_DB,
+  password: config.PG_PASSWORD,
+  port: config.PG_PORT,
 })
 
 const getBucketId = async (bucketPath) => {
@@ -32,14 +33,12 @@ const createBucket = async (bucketPath) => {
   }
 }
 
-const deleteBucket = async (bucketPath, res) => {
+const deleteBucket = async (bucketPath) => {
   try {
     await db.query(
       'DELETE FROM buckets WHERE bucket_path = $1',
       [bucketPath]
     );
-
-    res.json({message: `${bucketPath} deleted from postgres! :D`});
   } catch (error) {
     throw error;
   }

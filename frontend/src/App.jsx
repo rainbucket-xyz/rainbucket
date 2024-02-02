@@ -136,23 +136,10 @@ function RaindropDetails({ activeRaindropId, bucketPath }) {
  
 }
 
-/* [
-  "1/24/24 5:55:33AM"
-    { jan 24, 2024: [{timestamp: "5:55:33pm", method:"GET", path: "/"}, {}, {}]}
-    { jan 25, 2024: [{}, {}, {}]}
-    ]
-
-  // SELECT * FROM raindrops
-     WHERE bucket_id = bucketId
-
-*/
-
 function Main({ bucketPath }) {
   const [ raindrops, setRaindrops ] = useState([]);
-  const [ activeRaindropId, setActiveRaindropId ] = useState(null); // mongo_id of a specific raindrop
-  // const { sendMessage, lastMessage, readyState } = useWebSocket("wss://localhost:8888"); // use "onOpen" option to send bucketPath
+  const [ activeRaindropId, setActiveRaindropId ] = useState(null); 
   const ws = new WebSocket("ws://localhost:8888");
-  // sendMessage(bucketPath)
   function clickHandler(e) {
     setActiveRaindropId(e.currentTarget.dataset.id);
   }
@@ -167,31 +154,27 @@ function Main({ bucketPath }) {
   }, []); 
 
   useEffect(() => {
-    ws.addEventListener("open", () => {
-      console.log("We are connected!");
-      ws.send(bucketPath);
-    })
-  
-    ws.addEventListener("message", (e) => {
-      // e.data == data
+		const onOpenHandler = () => {
+	    console.log("We are connected!");
+	    ws.send(bucketPath);
+    }
+
+		const onMessageHandler = (e) => {
       let raindrop = JSON.parse(e.data);
-      console.log(raindrop);
-      setRaindrops([raindrop, ...raindrops]); 
-      console.log('raindrop received');
-    })
+			console.log("previous collection", raindrops);
+			console.log("new collection");
+      setRaindrops((previousRaindrops) => [raindrop, ...previousRaindrops]);
+    }
+
+	  ws.addEventListener("open", onOpenHandler)
+    ws.addEventListener("message", onMessageHandler)
+
+		return () => {
+      ws.removeEventListener("open", onOpenHandler);
+      ws.removeEventListener("message", onMessageHandler);
+  	}
   }, [])
-  
-  // OLD REACT WEBSOCKET BULLSHIT
-  // useEffect(() => {
-  //   if (lastMessage !== null) {
-  //     setRaindrops(raindrops.concat(lastMessage));
-  //   }
-  // }, [lastMessage]);
 
-
-  // headers: {
-  //   'Bucket-Path': 'fhsiuhfsdius'
-  // }
   return(
     <main>
       <Raindrops clickHandler={clickHandler} raindrops={raindrops} activeRaindropId={activeRaindropId}/>
