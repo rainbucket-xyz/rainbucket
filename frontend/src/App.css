@@ -37,7 +37,6 @@ header img {
   align-items: center;
   background-color: #3C58D9;
   color:#F5F5F5;
-  width: 100%;
   padding: 10px;
   display: flex;
   column-gap: 10px;
@@ -159,8 +158,14 @@ main {
 }
 
 /* RAINDROP DETAILS */
-#raindrop-detail-container {
+#rightSection {
   flex: 3;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+#raindrop-detail-container {
   display: flex;
   flex-direction: column;
   background-color: #FDECD8;
@@ -283,6 +288,7 @@ main {
 /* FOOTER */
 footer {
   text-align: center;
+  margin-bottom: 10px;
 }
 
 footer a, footer a:visited {
@@ -295,4 +301,52 @@ footer a:hover {
   color:#3C58D9;
   text-transform: uppercase;
   text-decoration: none;
+}
+
+/* ABOUT US */
+#about-us {
+  display: flex;
+  justify-content: center;
+  padding: 80px;
+  background-color: #3C58D9;
+}
+
+#about-us img {
+  height: 500px;
+}
+
+#about-us-blurb {
+  background-color: #FDECD8;
+  width: 750px;
+  margin-right: auto;
+  margin-left: auto;
+  margin-top: -50px;
+  margin-bottom: 20px;
+  padding: 35px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  filter: drop-shadow(.2rem .2rem 2px #BE9E53);
+}
+
+#about-us-blurb h2 {
+  font-size: 2rem;
+  font-family: 'Gabarito', sans-serif;
+}
+
+#about-us-blurb p {
+  font-size: 1.2rem;
+}
+
+#about-us-blurb a:visited {
+  color: black;
+}
+
+#about-us-blurb a:hover {
+  color:#3C58D9;
+}
+
+#about-us-blurb a:active {
+  color:#2e44a9;
 }
