@@ -157,7 +157,7 @@ function RaindropDetails({ activeRaindropId, bucketPath, footerClickHandler, abo
 function Main({ bucketPath, footerClickHandler, aboutVisible }) {
   const [ raindrops, setRaindrops ] = useState([]);
   const [ activeRaindropId, setActiveRaindropId ] = useState(null); 
-  const ws = new WebSocket("ws://rainbucket.xyz/websocket-server");
+  const ws = new WebSocket("wss://rainbucket.xyz/websocket-server");
   function clickHandler(e) {
     setActiveRaindropId(e.currentTarget.dataset.id);
   }
