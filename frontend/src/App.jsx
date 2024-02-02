@@ -1,14 +1,13 @@
 import { useState, useEffect } from 'react'
 import useWebSocket, { ReadyState } from 'react-use-websocket';
 import Highlight from 'react-highlight'
-// import 'highlight.js/styles/default.css';
 import 'highlight.js/styles/base16/humanoid-light.min.css';
+import timeFormatter from '../utils/timeFormatter';
 import './whitespace-reset.css'
 import './App.css'
 
-const APIGETBUCKET = "http://localhost:3000/"; // Replace with the correct API endpoint
+const APIGETBUCKET = "http://localhost:3000/";
 const BASEBUCKET = "http://localhost:3000/b"
-// const SOCKETURL = "wss://localhost:8888";
 
 function Header() {
   return (
@@ -118,14 +117,12 @@ function RaindropDetails({ activeRaindropId, bucketPath, footerClickHandler, abo
   const [ raindrop, setRaindrop ] = useState(null);
   
   useEffect(() => {
-    console.log("raindropdetails: ",activeRaindropId);
     if (activeRaindropId) {     
       const subpath = `api/bucket/${bucketPath}/raindrop/${activeRaindropId}`;
       (async () => {
         const res = await fetch(APIGETBUCKET + subpath, { credentials: "include"});
         const data = await res.json();
-        console.log(data)
-        setRaindrop(data); // {headers: {}, payload: {}}
+        setRaindrop(data);
       })()
     }
   }, [activeRaindropId]); 
@@ -154,23 +151,10 @@ function RaindropDetails({ activeRaindropId, bucketPath, footerClickHandler, abo
  
 }
 
-/* [
-  "1/24/24 5:55:33AM"
-    { jan 24, 2024: [{timestamp: "5:55:33pm", method:"GET", path: "/"}, {}, {}]}
-    { jan 25, 2024: [{}, {}, {}]}
-    ]
-
-  // SELECT * FROM raindrops
-     WHERE bucket_id = bucketId
-
-*/
-
 function Main({ bucketPath, footerClickHandler, aboutVisible }) {
   const [ raindrops, setRaindrops ] = useState([]);
-  const [ activeRaindropId, setActiveRaindropId ] = useState(null); // mongo_id of a specific raindrop
-  // const { sendMessage, lastMessage, readyState } = useWebSocket("wss://localhost:8888"); // use "onOpen" option to send bucketPath
+  const [ activeRaindropId, setActiveRaindropId ] = useState(null); 
   const ws = new WebSocket("ws://localhost:8888");
-  // sendMessage(bucketPath)
   function clickHandler(e) {
     setActiveRaindropId(e.currentTarget.dataset.id);
   }
@@ -180,26 +164,29 @@ function Main({ bucketPath, footerClickHandler, aboutVisible }) {
     (async () => {
       const res = await fetch(APIGETBUCKET + subpath, {credentials: 'include'});
       const data = await res.json();
-      setRaindrops(data.raindrops);
+      setRaindrops(timeFormatter(data.raindrops));
     })()
   }, []); 
 
   useEffect(() => {
-    ws.addEventListener("open", () => {
-      console.log("We are connected!");
-      ws.send(bucketPath);
-    })
-  
-    ws.addEventListener("message", (e) => {
-      // e.data == data
+		const onOpenHandler = () => {
+	    ws.send(bucketPath);
+    }
+
+		const onMessageHandler = (e) => {
       let raindrop = JSON.parse(e.data);
-      console.log(raindrop);
-      console.log(raindrops);
-      setRaindrops([raindrop, ...raindrops]);
-      console.log('raindrop received');
-    })
+      setRaindrops((previousRaindrops) => [timeFormatter(raindrop), ...previousRaindrops]);
+    }
+
+	  ws.addEventListener("open", onOpenHandler)
+    ws.addEventListener("message", onMessageHandler)
+
+		return () => {
+      ws.removeEventListener("open", onOpenHandler);
+      ws.removeEventListener("message", onMessageHandler);
+  	}
   }, [])
-  
+
   return(
     <main>
       <Raindrops clickHandler={clickHandler} raindrops={raindrops} activeRaindropId={activeRaindropId}/>
@@ -282,13 +269,11 @@ function App() {
   useEffect(() => {
     (async () => {
       let res = await fetch(APIGETBUCKET, {credentials: "include" });
-      console.log(res)
       let data = await res.json(); // Parse the response data
       setBucket(data); // Pass the response data to setBucket
     })();
   }, []);
  
-  // aboutpage state?
   if (aboutVisible) {  
     return(<About footerClickHandler={footerClickHandler} aboutVisible={aboutVisible} />)
   } else {
