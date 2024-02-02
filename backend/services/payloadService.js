@@ -1,41 +1,19 @@
 const config = require("../utils/config");
 const mongoose = require('mongoose')
 const Raindrop = require('../models/raindrop')
+const {EmptyTemplate, isEmptyObject} = require("../utils/isEmptyObject");
 
 mongoose.set('strictQuery', false);
 mongoose.connect(config.TEST_MONGODB_URI);
-
-// ===================== Add Example Data to MongoDB ==========================
-// mongoose.set('strictQuery', false);
-// mongoose.connect();
-
-// const example_raindrop = new Raindrop({
-//   bucket_path: '777zzz',
-//   headers: 'example header',
-//   payload: 'example payload',
-// });
-
-// example_raindrop.save().then(() => {
-//   mongoose.connection.close();
-// })
-
-// Raindrop.find({}).then(result => {
-//   result.forEach(payload => {
-//     console.log(payload);
-//   });
-//   mongoose.connection.close();
-// });
-// ===========================================================================
 
 async function createRaindropPayload(bucketPath, headers, payload) {
   const raindrop = new Raindrop({
     bucket_path: bucketPath,
     headers: headers,
-    payload: payload,
+    payload: isEmptyObject(payload) ? EmptyTemplate : payload,
   })
 
   const savedRaindrop = await raindrop.save();
-  console.log(savedRaindrop);
   return savedRaindrop.id;
 }
 
@@ -48,10 +26,9 @@ async function getRaindropPayload(id) {
   }
 }
 
-async function deleteRaindropPayload(bucketPath, res) {
+async function deleteRaindropPayload(bucketPath) {
   try {
-    await Raindrop.findByIdAndDelete(bucketPath);
-    res.status(204).end();
+    return await Raindrop.deleteMany({bucket_path: bucketPath});
   } catch (error) {
     throw error;
   }

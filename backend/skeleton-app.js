@@ -4,7 +4,6 @@ const express = require('express');
 const app = express();
 const session = require("express-session");
 const cors = require("cors");
-const bucketService = require("./services/bucketService");
 const raindropService = require("./services/raindropService");
 
 const bucketRouter = require("./routes/bucket");
@@ -18,7 +17,7 @@ app.use(cors({
 app.use(session({
   cookie: {
     httpOnly: true,
-    maxAge: config.SESSION_MAX_AGE,
+    maxAge: Number(config.SESSION_MAX_AGE),
     path: "/",
     secure: false,
   },
@@ -38,18 +37,22 @@ app.get("/", async (req, res) => {
 
 app.use("/api/bucket", bucketRouter);
 
-app.all('/b/:bucket_path/:path*', async (req, res) => {
+app.all('/b/:bucket_path*', async (req, res) => {
   const bucketPath = req.params.bucket_path;
   const method = req.method;
-  const path = req.params.path;
+  const path = req.params[0];
   const headers = req.headers;
   const payload = req.body;
   let raindrop = await raindropService.createRaindrop(bucketPath, method, path, headers, payload);
   
-  if (clients[bucket_path]) {
-    clients[bucket_path].send(JSON.stringify(raindrop));
+
+	console.log("yo");
+  if (clients[bucketPath]) {
+		console.log("raindrop backend", JSON.stringify(raindrop));
+		console.log("user's bucketPath", bucketPath)
+    clients[bucketPath].send(JSON.stringify(raindrop));
   }
-  res.send('Cool thanks uwu'); // 200 ok back to postman
+  res.send('Cool thanks uwu');
 })
 
 const wss = new WebSocket.Server({port: config.WS_PORT});
@@ -59,6 +62,7 @@ wss.on("connection", (ws, req) => {
   
   ws.on('message', (message) => {
     bucketPath = message.toString();
+		console.log("bucketPath", bucketPath);
     clients[bucketPath] = ws;
   });
 
