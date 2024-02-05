@@ -1,6 +1,6 @@
 # Rainbucket
 
-![rainbucket logo](https://github.com/rainbucket-xyz/rainbucket/blob/main/backend/public/images/rainbucket.png?raw=true)
+![rainbucket logo](https://github.com/rainbucket-xyz/rainbucket/blob/main/frontend/public/gh_images/rainbucket.png?raw=true)
 
 Welcome to **Rainbucket**, a powerful yet straightforward tool designed for developers, testers, and enthusiasts who need to generate endpoint URLs for inspecting HTTP requests. Rainbucket is inspired by the functionality of Request Bin, providing a robust solution for receiving and examining request payloads in real-time. Whether you're debugging webhooks, developing APIs, or simply curious about the incoming requests, Rainbucket offers an intuitive and accessible platform to meet your needs.
 
