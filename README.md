@@ -31,4 +31,4 @@ Rainbucket is hosted on a Digital Ocean VPS, ensuring that the application is no
 
 Rainbucket stands as a testament to the power of simplicity in software tools. By mirroring the functionality of Request Bin and extending it with a modern technology stack, Rainbucket offers an indispensable resource for anyone looking to inspect and debug HTTP requests. Try Rainbucket today and streamline your development and testing workflows.
 
-Built with love by Allen Lee, Rachele Lang, Tess Lockey, and Weston Ludeke
+Built with love by Allen Lee, Rachele Lang, Tess Lockey, and Weston Ludeke!!!
